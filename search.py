@@ -15,7 +15,8 @@ class SearchEngine(tornado.web.RequestHandler):
     async def get(self):
 
         try:
-            # await asyncio.sleep(0.01)
+
+            print(self.get_argument('query'))
 
             loop = asyncio.get_event_loop()
             task = loop.create_task(self.get_datas(self.get_argument('query')))
@@ -24,15 +25,15 @@ class SearchEngine(tornado.web.RequestHandler):
                 task
             ])
 
-            r = self.order_xml(task.result().content)
-
-            self.set_status(status.HTTP_200_OK)
-            self.write({'r': r})
-
         except Exception as e:
 
             self.set_status(status.HTTP_417_EXPECTATION_FAILED)
-            print('Error {}'.format(e))
+
+        r = self.order_xml(task.result().content)
+
+        self.set_status(status.HTTP_200_OK)
+        self.write({'r': r})
+
 
         # finally:
 
@@ -40,7 +41,7 @@ class SearchEngine(tornado.web.RequestHandler):
 
 
     async def get_datas(self, query):
-        print('get_datas')
+
         key = '03.669487626:77de25eb7ee1a29c63a97b764c25ff07'
         user = 'francasix'
         lan = 'en'
@@ -49,31 +50,35 @@ class SearchEngine(tornado.web.RequestHandler):
 
         try:
 
-           print('request url 0')
            await asyncio.sleep(0.01)
-           print('request url 1')
+
            return requests.get(url)
 
         except Exception:
 
-            raise Exception('Request error https://yandex.com/search/xml')
+            self.set_status(status.HTTP_400_BAD_REQUEST)
 
-        # res = self.order_xml(response.content)
-        # self.write({'result': res})
 
     @staticmethod
     @task(name="order_xml")
     def order_xml(response):
-        print('order_xml')
+
+
         response_list = []
         root = ElementTree.fromstring(response)
 
-        # through tree structure of response
-        for element in root.iterfind('response/results/grouping/group/doc'):
+        try:
 
-            for sub_element in element:
+            # through tree structure of response
+            for element in root.iterfind('response/results/grouping/group/doc'):
 
-                if sub_element.tag == "url":
-                    response_list.append({'url': sub_element.text})
+                for sub_element in element:
+
+                    if sub_element.tag == "url":
+                        response_list.append({'url': sub_element.text})
+
+        except Exception:
+
+            self.set_status(status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return response_list
