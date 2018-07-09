@@ -1,9 +1,13 @@
 import tornado.ioloop
 import tornado.web
+import tornado.platform.asyncio
 from search import SearchEngine
+
+import asyncio
 
 
 class MainHandler(tornado.web.RequestHandler):
+
     def get(self):
         self.write("Hello, world")
 
@@ -18,4 +22,4 @@ def make_app():
 if __name__ == "__main__":
     app = make_app()
     app.listen(7000)
-    tornado.ioloop.IOLoop.current().start()
+    asyncio.get_event_loop().run_forever()
