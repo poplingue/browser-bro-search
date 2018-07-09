@@ -11,8 +11,15 @@ from celery.decorators import task
 class SearchEngine(tornado.web.RequestHandler):
 
     SUPPORTED_METHODS = ("GET")
+    CHECK_TEST_ID = 1
 
-    async def get(self):
+    async def get(self, id):
+
+        # security check
+        if int(id) is not self.__class__.CHECK_TEST_ID:
+            print(id)
+            self.set_status(status.HTTP_404_NOT_FOUND)
+            return
 
         try:
 
