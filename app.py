@@ -1,8 +1,7 @@
 import tornado.platform.asyncio
-from search import SearchEngine
-from tornado import web, escape, ioloop
+from tornado import web, ioloop
 
-import asyncio
+from sync_search import SearchEngine
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -25,4 +24,3 @@ if __name__ == "__main__":
 
     app.listen(7000)
     ioloop.IOLoop.instance().start()
-    # asyncio.get_event_loop().run_forever()
